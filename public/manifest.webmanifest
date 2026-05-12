@@ -1,0 +1,30 @@
+{
+  "id": "/life-clock/",
+  "name": "命の時計",
+  "short_name": "命の時計",
+  "description": "あの子の生後をぱっと見る。書類記入時にタップ 1 つでコピーできるアプリ。",
+  "start_url": "/life-clock/",
+  "scope": "/life-clock/",
+  "display": "standalone",
+  "display_override": ["standalone", "minimal-ui"],
+  "orientation": "portrait",
+  "theme_color": "#fbf3ee",
+  "background_color": "#fbf3ee",
+  "lang": "ja",
+  "dir": "ltr",
+  "categories": ["lifestyle", "utilities", "productivity"],
+  "icons": [
+    {
+      "src": "favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "maskable"
+    }
+  ]
+}
