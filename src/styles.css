@@ -826,7 +826,10 @@ dialog.dialog {
   padding: 0;
   margin: auto;
   max-width: 100vw;
-  max-height: 100vh;
+  /* dvh を使い iOS Safari の URL バー伸縮にも追従 */
+  max-height: 100dvh;
+  /* dialog 自体に safe-area を効かせると上下に隙間ができ、子の dialog-form が中央に来る */
+  inset: 0;
 }
 
 dialog.dialog::backdrop {
@@ -846,11 +849,18 @@ dialog.dialog::backdrop {
   color: var(--fg);
   border: 1px solid var(--card-border);
   border-radius: var(--radius-xl);
-  padding: var(--space-6) var(--space-6) var(--space-5);
+  /* padding は safe-area を上下に加味して、Dynamic Island や iOS のホームインジケータでも見切れない */
+  padding:
+    max(var(--space-6), calc(env(safe-area-inset-top) + var(--space-3)))
+    var(--space-6)
+    max(var(--space-5), calc(env(safe-area-inset-bottom) + var(--space-3)));
   box-shadow: var(--shadow-modal);
   width: min(440px, calc(100vw - 24px));
-  max-height: calc(100vh - 24px);
+  /* dvh = Dynamic Viewport Height(iOS Safari の URL バー収縮も追従)
+   * safe-area の合計を引いて、見えている範囲だけに収める */
+  max-height: calc(100dvh - env(safe-area-inset-top) - env(safe-area-inset-bottom) - 16px);
   overflow-y: auto;
+  overscroll-behavior: contain;
   display: flex;
   flex-direction: column;
   gap: var(--space-4);

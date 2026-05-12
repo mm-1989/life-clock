@@ -30,7 +30,6 @@ export function openSettings(child: Child, callbacks: SettingsCallbacks): void {
         ${renderTagSelect('set-tag', child.tag)}
       </label>
       <div class="dialog-actions">
-        <button type="button" class="btn btn-danger" id="set-delete">クリア</button>
         <div class="dialog-actions-right">
           <button type="button" class="btn btn-secondary" id="set-cancel">キャンセル</button>
           <button type="submit" class="btn btn-primary" id="set-save">保存</button>
@@ -47,22 +46,10 @@ export function openSettings(child: Child, callbacks: SettingsCallbacks): void {
         </ul>
       </div>
       <hr class="dialog-divider" />
-      <div class="order-section">
-        <span class="field-label">カードの並び</span>
-        <ul class="order-list" id="set-order-list">
-          ${renderOrderList()}
-        </ul>
-      </div>
-      <hr class="dialog-divider" />
       <button type="button" class="btn btn-secondary btn-block" id="set-add-child">＋ 別の子を追加</button>
+      <button type="button" class="btn btn-secondary btn-block" id="set-advanced">⚙ 詳しい設定</button>
       <hr class="dialog-divider" />
-      <div class="dialog-actions">
-        <button type="button" class="btn btn-secondary btn-mini" id="set-export">バックアップを出す</button>
-        <button type="button" class="btn btn-secondary btn-mini" id="set-import">バックアップから戻す</button>
-      </div>
-      <input type="file" id="set-import-file" accept="application/json,.json" hidden />
-      <hr class="dialog-divider" />
-      <button type="button" class="btn-link" id="set-about">このアプリについて</button>
+      <button type="button" class="btn btn-danger btn-block" id="set-delete">この子を消す</button>
     </form>
   `;
   document.body.appendChild(dialog);
@@ -121,34 +108,10 @@ export function openSettings(child: Child, callbacks: SettingsCallbacks): void {
 
   bindEventDelete(dialog, child, refreshEventList, callbacks);
 
-  // カードの並び替え(↑↓ ボタンで即時 moveCard、リストとメイン画面を再描画)
-  const refreshOrderList = (): void => {
-    const ul = dialog.querySelector<HTMLUListElement>('#set-order-list');
-    if (ul) ul.innerHTML = renderOrderList();
-    bindOrderButtons(dialog, refreshOrderList, callbacks);
-  };
-  bindOrderButtons(dialog, refreshOrderList, callbacks);
-
-  // JSON バックアップ/復元
-  dialog.querySelector<HTMLButtonElement>('#set-export')!.addEventListener('click', () => {
-    downloadBackup();
-  });
-  const fileInput = dialog.querySelector<HTMLInputElement>('#set-import-file')!;
-  dialog.querySelector<HTMLButtonElement>('#set-import')!.addEventListener('click', () => {
-    fileInput.click();
-  });
-  fileInput.addEventListener('change', () => {
-    const file = fileInput.files?.[0];
-    if (!file) return;
-    importBackup(file, () => {
-      closeAndRemove(dialog);
-      callbacks.onSave();
-    });
-    fileInput.value = ''; // 同じファイル再選択を許容
-  });
-
-  dialog.querySelector<HTMLButtonElement>('#set-about')!.addEventListener('click', () => {
-    openAbout();
+  // 「⚙ 詳しい設定」 → 別 dialog でカード並び・バックアップ・About を提供
+  // メイン設定 dialog はそのまま開いたまま重ねて表示(戻るとそのまま元に戻れる)
+  dialog.querySelector<HTMLButtonElement>('#set-advanced')!.addEventListener('click', () => {
+    openAdvancedSettings(callbacks);
   });
 
   // 背景タップで閉じる(<dialog> の ::backdrop クリック)
@@ -156,7 +119,10 @@ export function openSettings(child: Child, callbacks: SettingsCallbacks): void {
     if (e.target === dialog) closeAndRemove(dialog);
   });
 
+  // 開いた瞬間に名前 input へ自動 focus されないよう、dialog 自身を focusable にして奪う
+  dialog.tabIndex = -1;
   dialog.showModal();
+  dialog.focus();
 }
 
 function downloadBackup(): void {
@@ -481,6 +447,92 @@ function openAddEvent(childId: string, onAdded: () => void): void {
   });
 
   dialog.showModal();
+}
+
+// 詳しい設定(別 dialog): カード並び・表示/非表示 + バックアップ + このアプリについて。
+// メイン設定 dialog の上に重ねて開く(背景タップ or 「閉じる」で詳しい設定だけ閉じる)。
+function openAdvancedSettings(callbacks: SettingsCallbacks): void {
+  const dialog = document.createElement('dialog');
+  dialog.className = 'dialog';
+  dialog.innerHTML = `
+    <form method="dialog" class="dialog-form">
+      <h2 class="dialog-title">詳しい設定</h2>
+
+      <div class="order-section">
+        <span class="field-label">カードの並び・表示</span>
+        <ul class="order-list" id="adv-order-list">
+          ${renderOrderList()}
+        </ul>
+      </div>
+
+      <hr class="dialog-divider" />
+
+      <div class="event-section">
+        <span class="field-label">データのバックアップ</span>
+        <div class="dialog-actions">
+          <button type="button" class="btn btn-secondary btn-mini" id="adv-export">バックアップを出す</button>
+          <button type="button" class="btn btn-secondary btn-mini" id="adv-import">バックアップから戻す</button>
+        </div>
+        <input type="file" id="adv-import-file" accept="application/json,.json" hidden />
+      </div>
+
+      <hr class="dialog-divider" />
+
+      <button type="button" class="btn-link" id="adv-about">このアプリについて</button>
+
+      <div class="dialog-actions">
+        <div class="dialog-actions-right">
+          <button type="button" class="btn btn-primary" id="adv-close">閉じる</button>
+        </div>
+      </div>
+    </form>
+  `;
+  document.body.appendChild(dialog);
+
+  // 並び替え + 表示制御(メイン画面を即時再描画 = callbacks.onSave)
+  const refreshOrder = (): void => {
+    const ul = dialog.querySelector<HTMLUListElement>('#adv-order-list');
+    if (ul) ul.innerHTML = renderOrderList();
+    bindOrderButtons(dialog, refreshOrder, callbacks);
+  };
+  bindOrderButtons(dialog, refreshOrder, callbacks);
+
+  // バックアップ/復元
+  dialog.querySelector<HTMLButtonElement>('#adv-export')!.addEventListener('click', () => {
+    downloadBackup();
+  });
+  const fileInput = dialog.querySelector<HTMLInputElement>('#adv-import-file')!;
+  dialog.querySelector<HTMLButtonElement>('#adv-import')!.addEventListener('click', () => {
+    fileInput.click();
+  });
+  fileInput.addEventListener('change', () => {
+    const file = fileInput.files?.[0];
+    if (!file) return;
+    importBackup(file, () => {
+      // バックアップ復元時はメイン設定 dialog も含めすべて閉じる(子データが入れ替わるため)
+      closeAndRemove(dialog);
+      removeExisting();
+      callbacks.onSave();
+    });
+    fileInput.value = '';
+  });
+
+  dialog.querySelector<HTMLButtonElement>('#adv-about')!.addEventListener('click', () => {
+    openAbout();
+  });
+
+  dialog.querySelector<HTMLButtonElement>('#adv-close')!.addEventListener('click', () => {
+    closeAndRemove(dialog);
+  });
+
+  dialog.addEventListener('click', (e) => {
+    if (e.target === dialog) closeAndRemove(dialog);
+  });
+
+  // 自動 focus 抑止(設定系 dialog なので入力フォーカスは不要)
+  dialog.tabIndex = -1;
+  dialog.showModal();
+  dialog.focus();
 }
 
 function openAddChild(onAdded: () => void): void {
