@@ -36,16 +36,6 @@ export function openSettings(child: Child, callbacks: SettingsCallbacks): void {
         </div>
       </div>
       <hr class="dialog-divider" />
-      <div class="event-section">
-        <div class="event-section-head">
-          <span class="field-label">イベント</span>
-          <button type="button" class="btn btn-secondary btn-mini" id="set-add-event">＋ 追加</button>
-        </div>
-        <ul class="event-list" id="set-event-list">
-          ${renderEventList(child.events)}
-        </ul>
-      </div>
-      <hr class="dialog-divider" />
       <button type="button" class="btn btn-secondary btn-block" id="set-add-child">＋ 別の子を追加</button>
       <button type="button" class="btn btn-secondary btn-block" id="set-advanced">⚙ 詳しい設定</button>
       <hr class="dialog-divider" />
@@ -92,26 +82,10 @@ export function openSettings(child: Child, callbacks: SettingsCallbacks): void {
   });
 
   // イベントの追加・削除はその場で永続化(キャンセル不可、軽量メモのため意図的)。
-  // 親モーダルは開いたまま、イベントリストだけ再描画する。
-  const refreshEventList = (): void => {
-    const ul = dialog.querySelector<HTMLUListElement>('#set-event-list');
-    if (ul) ul.innerHTML = renderEventList(child.events);
-    bindEventDelete(dialog, child, refreshEventList, callbacks);
-  };
-
-  dialog.querySelector<HTMLButtonElement>('#set-add-event')!.addEventListener('click', () => {
-    openAddEvent(child.id, () => {
-      refreshEventList();
-      callbacks.onSave(); // メイン画面のイベントカードも更新
-    });
-  });
-
-  bindEventDelete(dialog, child, refreshEventList, callbacks);
-
-  // 「⚙ 詳しい設定」 → 別 dialog でカード並び・バックアップ・About を提供
+  // 「⚙ 詳しい設定」 → 別 dialog でイベント・カード並び・バックアップ・About を提供
   // メイン設定 dialog はそのまま開いたまま重ねて表示(戻るとそのまま元に戻れる)
   dialog.querySelector<HTMLButtonElement>('#set-advanced')!.addEventListener('click', () => {
-    openAdvancedSettings(callbacks);
+    openAdvancedSettings(child, callbacks);
   });
 
   // 背景タップで閉じる(<dialog> の ::backdrop クリック)
@@ -451,12 +425,24 @@ function openAddEvent(childId: string, onAdded: () => void): void {
 
 // 詳しい設定(別 dialog): カード並び・表示/非表示 + バックアップ + このアプリについて。
 // メイン設定 dialog の上に重ねて開く(背景タップ or 「閉じる」で詳しい設定だけ閉じる)。
-function openAdvancedSettings(callbacks: SettingsCallbacks): void {
+function openAdvancedSettings(child: Child, callbacks: SettingsCallbacks): void {
   const dialog = document.createElement('dialog');
   dialog.className = 'dialog';
   dialog.innerHTML = `
     <form method="dialog" class="dialog-form">
       <h2 class="dialog-title">詳しい設定</h2>
+
+      <div class="event-section">
+        <div class="event-section-head">
+          <span class="field-label">イベント</span>
+          <button type="button" class="btn btn-secondary btn-mini" id="adv-add-event">＋ 追加</button>
+        </div>
+        <ul class="event-list" id="adv-event-list">
+          ${renderEventList(child.events)}
+        </ul>
+      </div>
+
+      <hr class="dialog-divider" />
 
       <div class="order-section">
         <span class="field-label">カードの並び・表示</span>
@@ -488,6 +474,20 @@ function openAdvancedSettings(callbacks: SettingsCallbacks): void {
     </form>
   `;
   document.body.appendChild(dialog);
+
+  // イベント(追加・削除・並び替え)
+  const refreshEvents = (): void => {
+    const ul = dialog.querySelector<HTMLUListElement>('#adv-event-list');
+    if (ul) ul.innerHTML = renderEventList(child.events);
+    bindEventDelete(dialog, child, refreshEvents, callbacks);
+  };
+  bindEventDelete(dialog, child, refreshEvents, callbacks);
+  dialog.querySelector<HTMLButtonElement>('#adv-add-event')!.addEventListener('click', () => {
+    openAddEvent(child.id, () => {
+      refreshEvents();
+      callbacks.onSave();
+    });
+  });
 
   // 並び替え + 表示制御(メイン画面を即時再描画 = callbacks.onSave)
   const refreshOrder = (): void => {

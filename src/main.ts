@@ -291,7 +291,8 @@ function renderMain(child: Child): void {
 
   // 誕生日当日(1歳以上の毎年): confetti + chime を 1 回だけ発火
   // 同じ子 + 同じ日 では 2 回目以降の render では発火しない(60秒 setInterval が走っても抑止)
-  if (!future && cal.years > 0 && nb.totalDays === 0) {
+  // ?capture=1 が付いている場合(Playwright スクショ撮影時)は抑止 → スクショの視認性確保
+  if (!future && cal.years > 0 && nb.totalDays === 0 && !isCaptureMode()) {
     triggerBirthdayCelebration(child.id);
   }
 
@@ -312,6 +313,11 @@ function triggerBirthdayCelebration(childId: string): void {
   celebratedToday.add(key);
   launchConfetti(40);
   playChime();
+}
+
+// スクショ撮影モード(URL ?capture=1):動的演出(confetti / 音 / アニメ)を控えて静的見栄え確保
+function isCaptureMode(): boolean {
+  return new URLSearchParams(location.search).get('capture') === '1';
 }
 
 function switchChildBy(delta: 1 | -1): void {

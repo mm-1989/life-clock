@@ -120,7 +120,9 @@ async function run() {
             content: `localStorage.setItem('lifeClock.v1', ${JSON.stringify(json)});`,
           });
         }
-        await page.goto(URL, { waitUntil: 'networkidle', timeout: 30000 });
+        // ?capture=1 で confetti などの動的演出を抑止(スクショの視認性確保)
+        const visitUrl = URL + (URL.includes('?') ? '&' : '?') + 'capture=1';
+        await page.goto(visitUrl, { waitUntil: 'networkidle', timeout: 30000 });
         await page.waitForTimeout(1200); // confetti / アニメ完了を含めて少し待つ
         if (sc.afterLoad) await sc.afterLoad(page);
         const filename = `${sc.name}-${scheme}.png`;

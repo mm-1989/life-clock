@@ -33,7 +33,8 @@ export function renderOnboarding(root: HTMLElement, onSubmit: () => void): void 
   const tagInput = root.querySelector<HTMLSelectElement>('#ob-tag');
   if (!form || !nameInput || !birthInput || !tagInput) return;
 
-  setTimeout(() => nameInput.focus(), 0);
+  // 設定系と統一: 開いた瞬間に input へ自動 focus しない(誤入力・キーボード起動防止)
+  // ユーザがタップで明示的に focus する流れに統一
 
   form.addEventListener('submit', (e) => {
     e.preventDefault();
