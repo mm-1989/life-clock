@@ -1,0 +1,65 @@
+name: Capture screenshots
+
+# Pages デプロイ完了 → 公開 URL を Playwright で撮影 → screenshots ブランチへ force push。
+# Claude/開発者は `git fetch origin screenshots:screenshots` で取り込んで確認できる。
+on:
+  workflow_run:
+    workflows: ['Deploy to GitHub Pages']
+    types: [completed]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: screenshots
+  cancel-in-progress: true
+
+jobs:
+  capture:
+    # deploy.yml が成功したときだけ実行(失敗時はスキップ)
+    if: ${{ github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - run: npm ci
+
+      # Playwright + Chromium をシステム依存込みでインストール
+      - name: Install Playwright (chromium)
+        run: npx playwright install --with-deps chromium
+
+      # 公開 URL が安定するまで少し待機(Pages の伝播)
+      - name: Wait for Pages to settle
+        run: sleep 30
+
+      - name: Capture screenshots
+        env:
+          SITE_URL: https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/
+        run: npm run capture
+
+      # screenshots ブランチへ orphan force push(過去の履歴は保持しない、最新だけ)
+      - name: Push to screenshots branch
+        run: |
+          set -e
+          cd screenshots
+          git init -b screenshots
+          git config user.name 'github-actions[bot]'
+          git config user.email 'github-actions[bot]@users.noreply.github.com'
+          git add .
+          git commit -m "Screenshots from ${GITHUB_SHA::7} ($(date -u +%Y-%m-%dT%H:%MZ))"
+          git remote add origin "https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
+          git push --force origin screenshots
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      # PR のレビュー等にも使えるよう Actions の artifact にも残す(90 日)
+      - uses: actions/upload-artifact@v4
+        with:
+          name: screenshots
+          path: screenshots/
