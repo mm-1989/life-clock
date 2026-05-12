@@ -12,7 +12,8 @@
 | [`docs/spec.md`](./docs/spec.md) | カード仕様・表示/コピー対応・データモデル・タグ |
 | [`docs/dev-rules.md`](./docs/dev-rules.md) | 技術スタック・ファイル構成・編集ルール・テスト境界・Phase 履歴 |
 | [`README.md`](./README.md) | ユーザ向け説明 + 開発セットアップ |
-| `/home/mm_admin/.claude/plans/dapper-growing-pine.md` | 壁打ち・判断記録(プラン文書) |
+
+> 設計の判断記録(壁打ちプラン)は repo 外の Claude Code 管理下にあり、commit には含まれません。
 
 ## 最重要ルール(必ず守る)
 
