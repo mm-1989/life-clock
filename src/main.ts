@@ -90,13 +90,21 @@ function renderMain(child: Child): void {
   const mainLabel = future ? '生まれるまで' : '生まれてから';
   const birthLabel = future ? '生まれる予定日' : '生まれた日';
 
-  // 過去・未来共通: 0歳0か月→「D日」のみ、0歳→「Mか月とD日」、1歳以降→「N歳Mか月とD日」
+  // 過去・未来共通の省略ロジック(formatBreakdownLabel と同期):
+  //   0歳0か月→「D日」、0歳・0日→「Mか月」、0歳→「Mか月とD日」、
+  //   1歳・月日とも0→「N歳」、1歳・0日→「N歳Mか月」、それ以外→「N歳Mか月とD日」
   const calCopy = formatBreakdownLabel(cal);
   let calValueHtml: string;
   if (cal.years === 0 && cal.months === 0) {
     calValueHtml = `${cal.days}<small>日</small>`;
   } else if (cal.years === 0) {
-    calValueHtml = `${cal.months}<small>か月と</small> ${cal.days}<small>日</small>`;
+    calValueHtml = cal.days === 0
+      ? `${cal.months}<small>か月</small>`
+      : `${cal.months}<small>か月と</small> ${cal.days}<small>日</small>`;
+  } else if (cal.months === 0 && cal.days === 0) {
+    calValueHtml = `${cal.years}<small>歳</small>`;
+  } else if (cal.days === 0) {
+    calValueHtml = `${cal.years}<small>歳</small> ${cal.months}<small>か月</small>`;
   } else {
     calValueHtml = `${cal.years}<small>歳</small> ${cal.months}<small>か月と</small> ${cal.days}<small>日</small>`;
   }

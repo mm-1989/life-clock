@@ -345,12 +345,20 @@ export function formatJapaneseEraDate(d: Date): string {
 }
 
 // メインカード(生まれてから / 生まれるまで)用フォーマッタ。過去・未来共通。
-//   0歳0か月: 「D日」のみ(新生児期は「日齢」が自然、未来も「あと N 日」)
-//   0歳・1か月以上: 「Mか月とD日」(歳省略)
-//   1歳以降: 「N歳Mか月とD日」(中途の 0 は省略しない、書類欄に転記しやすいため)
+//   0歳0か月: 「D日」のみ
+//   0歳・1か月以上 & 0日省略: 「Mか月」
+//   0歳・1か月以上: 「Mか月とD日」
+//   1歳以降 & 月日両方0: 「N歳」(歳の誕生日当日)
+//   1歳以降 & 0日: 「N歳Mか月」(中途の 0 月は残す、月命日)
+//   1歳以降: 「N歳Mか月とD日」
 export function formatBreakdownLabel(cal: Breakdown): string {
   if (cal.years === 0 && cal.months === 0) return `${cal.days}日`;
-  if (cal.years === 0) return `${cal.months}か月と${cal.days}日`;
+  if (cal.years === 0) {
+    if (cal.days === 0) return `${cal.months}か月`;
+    return `${cal.months}か月と${cal.days}日`;
+  }
+  if (cal.months === 0 && cal.days === 0) return `${cal.years}歳`;
+  if (cal.days === 0) return `${cal.years}歳${cal.months}か月`;
   return `${cal.years}歳${cal.months}か月と${cal.days}日`;
 }
 
