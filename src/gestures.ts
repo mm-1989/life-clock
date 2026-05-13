@@ -68,6 +68,10 @@ export function attachLongPress(
 
 // 水平スワイプ検出。垂直方向が水平より大きい(縦スクロール意図)場合は無視する。
 // 子切替などの大局的なナビゲーション用。
+//
+// 取りこぼし対策:
+//  - setPointerCapture で pointer を el に固定 → 指が要素外に出ても pointerup が必ず発火
+//  - el は touch-action: pan-y を期待(縦スクロールは許可、水平はこちらで処理)
 export function attachHorizontalSwipe(
   el: HTMLElement,
   options: {
@@ -79,18 +83,24 @@ export function attachHorizontalSwipe(
   const threshold = options.threshold ?? 60;
   let startX = 0;
   let startY = 0;
-  let active = false;
+  let activePointerId: number | null = null;
 
   el.addEventListener('pointerdown', (e: PointerEvent) => {
     if (e.pointerType === 'mouse' && e.button !== 0) return;
     startX = e.clientX;
     startY = e.clientY;
-    active = true;
+    activePointerId = e.pointerId;
+    try {
+      // pointer を el に固定 → 指が要素外に行っても pointerup を必ず受け取れる
+      el.setPointerCapture(e.pointerId);
+    } catch {
+      /* setPointerCapture 未対応環境はそのまま続行 */
+    }
   });
 
   el.addEventListener('pointerup', (e: PointerEvent) => {
-    if (!active) return;
-    active = false;
+    if (activePointerId !== e.pointerId) return;
+    activePointerId = null;
     const dx = e.clientX - startX;
     const dy = e.clientY - startY;
     if (Math.abs(dx) < threshold) return;
@@ -99,5 +109,7 @@ export function attachHorizontalSwipe(
     else options.onSwipeLeft();
   });
 
-  el.addEventListener('pointercancel', () => { active = false; });
+  el.addEventListener('pointercancel', (e: PointerEvent) => {
+    if (activePointerId === e.pointerId) activePointerId = null;
+  });
 }

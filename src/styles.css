@@ -123,6 +123,8 @@ body {
     env(safe-area-inset-right)
     env(safe-area-inset-bottom)
     env(safe-area-inset-left);
+  /* スワイプ取りこぼし対策: 縦スクロールは許可、水平方向は JS が受け取る */
+  touch-action: pan-y;
   background:
     radial-gradient(circle at 18% -8%, rgba(236, 132, 120, 0.08), transparent 38%),
     radial-gradient(circle at 88% 110%, rgba(236, 132, 120, 0.06), transparent 42%),
@@ -175,6 +177,11 @@ button { font: inherit; }
   display: flex;
   flex-direction: column;
   gap: var(--space-3);
+  /* スワイプ取りこぼし対策:
+   *  - min-height で画面下部の空白でもスワイプ反応
+   *  - touch-action: pan-y で縦スクロールは許可、水平はJSが受け取る */
+  min-height: 100dvh;
+  touch-action: pan-y;
 }
 
 /* ===== Header ===== */

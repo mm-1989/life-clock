@@ -293,15 +293,18 @@ function renderMain(child: Child): void {
   // 画面全体の水平スワイプで前後の子に切替。
   // 重要: renderMain は子切替や 60 秒タイマーで何度も呼ばれるため、handler は 1 回だけ attach。
   // 多重 attach すると 1 回のスワイプで複数回 switchChildBy が発火 → 状態が壊れる。
+  // attach 先は document.body(画面全域でスワイプ反応)。dialog 内のスワイプは無視。
   // 子の人数判定は callback 内で動的に行う(後から子を追加しても自動で有効化)。
   if (!swipeAttached) {
     swipeAttached = true;
-    attachHorizontalSwipe(root!, {
+    attachHorizontalSwipe(document.body, {
       onSwipeLeft: () => {
+        if (isInDialog()) return;
         if (getStore().children.length < 2) return;
         switchChildBy(1);
       },
       onSwipeRight: () => {
+        if (isInDialog()) return;
         if (getStore().children.length < 2) return;
         switchChildBy(-1);
       },
@@ -337,6 +340,11 @@ function triggerBirthdayCelebration(childId: string): void {
 // スクショ撮影モード(URL ?capture=1):動的演出(confetti / 音 / アニメ)を控えて静的見栄え確保
 function isCaptureMode(): boolean {
   return new URLSearchParams(location.search).get('capture') === '1';
+}
+
+// dialog(設定モーダルなど)が開いているか。スワイプ中の意図しない子切替を防ぐ。
+function isInDialog(): boolean {
+  return document.querySelector('dialog[open]') !== null;
 }
 
 function switchChildBy(delta: 1 | -1): void {
