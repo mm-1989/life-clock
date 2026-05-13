@@ -28,6 +28,7 @@ if (!root) throw new Error('#app not found');
 
 let renderTimer: number | null = null;
 let lastRenderedChildId: string | null = null;
+let swipeAttached = false; // 画面水平スワイプは render ごとに re-attach せず 1 回だけ
 
 function bootstrap(): void {
   const child = getActiveChild();
@@ -289,11 +290,21 @@ function renderMain(child: Child): void {
     activeTab.scrollIntoView({ block: 'nearest', inline: 'center', behavior: 'smooth' });
   }
 
-  // 画面全体の水平スワイプで前後の子に切替(2人以上のときだけ有効)
-  if (allChildren.length >= 2) {
+  // 画面全体の水平スワイプで前後の子に切替。
+  // 重要: renderMain は子切替や 60 秒タイマーで何度も呼ばれるため、handler は 1 回だけ attach。
+  // 多重 attach すると 1 回のスワイプで複数回 switchChildBy が発火 → 状態が壊れる。
+  // 子の人数判定は callback 内で動的に行う(後から子を追加しても自動で有効化)。
+  if (!swipeAttached) {
+    swipeAttached = true;
     attachHorizontalSwipe(root!, {
-      onSwipeLeft: () => switchChildBy(1),
-      onSwipeRight: () => switchChildBy(-1),
+      onSwipeLeft: () => {
+        if (getStore().children.length < 2) return;
+        switchChildBy(1);
+      },
+      onSwipeRight: () => {
+        if (getStore().children.length < 2) return;
+        switchChildBy(-1);
+      },
     });
   }
 
