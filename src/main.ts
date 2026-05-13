@@ -165,10 +165,7 @@ function renderMain(child: Child): void {
 
   root!.innerHTML = `
     <header class="header">
-      <div class="header-left">
-        <span class="brand">命の時計</span>
-        ${headerNameHtml}
-      </div>
+      ${headerNameHtml}
       <button type="button" class="icon-button" id="open-settings" aria-label="設定">
         <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
           <circle cx="12" cy="12" r="3"/>
