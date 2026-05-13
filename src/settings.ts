@@ -39,7 +39,7 @@ export function openSettings(child: Child, callbacks: SettingsCallbacks): void {
       <button type="button" class="btn btn-secondary btn-block" id="set-add-child">＋ 別の子を追加</button>
       <button type="button" class="btn btn-secondary btn-block" id="set-advanced">⚙ 詳しい設定</button>
       <hr class="dialog-divider" />
-      <button type="button" class="btn btn-danger btn-block" id="set-delete">この子を消す</button>
+      <button type="button" class="btn btn-danger btn-block" id="set-delete">この子をクリア</button>
     </form>
   `;
   document.body.appendChild(dialog);
