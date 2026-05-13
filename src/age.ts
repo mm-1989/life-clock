@@ -346,13 +346,15 @@ export function formatJapaneseEraDate(d: Date): string {
 
 // メインカード(生まれてから / 生まれるまで)用フォーマッタ。過去・未来共通。
 // 0 を視覚ノイズにしない方針:歳・月・日のうち 0 のものは省略する。
+// 残った単位は「と」で繋ぐ(歳・月の間も「と」を挟んで一貫)。
 //   {0,0,15} → 「15日」
 //   {0,3,12} → 「3か月と12日」
 //   {0,3, 0} → 「3か月」
-//   {1,0,12} → 「1歳と12日」(中途 0 月省略、「と」で繋ぐ)
-//   {1,3, 0} → 「1歳3か月」
+//   {1,0,12} → 「1歳と12日」
+//   {1,3, 0} → 「1歳と3か月」
 //   {1,0, 0} → 「1歳」
-//   {5,11,30} → 「5歳11か月と30日」
+//   {3,0, 1} → 「3歳と1日」
+//   {5,11,30} → 「5歳と11か月と30日」
 export function formatBreakdownLabel(cal: Breakdown): string {
   if (cal.years === 0 && cal.months === 0) return `${cal.days}日`;
   if (cal.years === 0) {
@@ -361,8 +363,8 @@ export function formatBreakdownLabel(cal: Breakdown): string {
   }
   if (cal.months === 0 && cal.days === 0) return `${cal.years}歳`;
   if (cal.months === 0) return `${cal.years}歳と${cal.days}日`;
-  if (cal.days === 0) return `${cal.years}歳${cal.months}か月`;
-  return `${cal.years}歳${cal.months}か月と${cal.days}日`;
+  if (cal.days === 0) return `${cal.years}歳と${cal.months}か月`;
+  return `${cal.years}歳と${cal.months}か月と${cal.days}日`;
 }
 
 // 短縮版「歳と月のみ」(日省略)。0歳は「Mか月」のみ。

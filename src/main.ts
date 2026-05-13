@@ -106,16 +106,18 @@ function renderMain(child: Child): void {
   } else if (cal.months === 0) {
     calValueHtml = `${cal.years}<small>歳と</small> ${cal.days}<small>日</small>`;
   } else if (cal.days === 0) {
-    calValueHtml = `${cal.years}<small>歳</small> ${cal.months}<small>か月</small>`;
+    calValueHtml = `${cal.years}<small>歳と</small> ${cal.months}<small>か月</small>`;
   } else {
-    calValueHtml = `${cal.years}<small>歳</small> ${cal.months}<small>か月と</small> ${cal.days}<small>日</small>`;
+    calValueHtml = `${cal.years}<small>歳と</small> ${cal.months}<small>か月と</small> ${cal.days}<small>日</small>`;
   }
 
-  // 未来モードは「あと N週と D日」「あと N日」を付与(意味の明確化)
-  const wdCopy = future ? `あと${fmt(wd.weeks)}週と${wd.days}日` : `${fmt(wd.weeks)}週と${wd.days}日`;
-  const wdValueHtml = future
-    ? `あと ${fmt(wd.weeks)}<small>週と</small> ${wd.days}<small>日</small>`
+  // 週: 末尾の「0日」を省略({N週,0日}→「N週」)、未来モードは「あと」を付与
+  const wdBase = wd.days === 0 ? `${fmt(wd.weeks)}週` : `${fmt(wd.weeks)}週と${wd.days}日`;
+  const wdBaseHtml = wd.days === 0
+    ? `${fmt(wd.weeks)}<small>週</small>`
     : `${fmt(wd.weeks)}<small>週と</small> ${wd.days}<small>日</small>`;
+  const wdCopy = future ? `あと${wdBase}` : wdBase;
+  const wdValueHtml = future ? `あと ${wdBaseHtml}` : wdBaseHtml;
 
   const tdCopy = future ? `あと${fmt(td)}日` : `${fmt(td)}日`;
   const tdValueHtml = future ? `あと ${fmt(td)}<small>日</small>` : `${fmt(td)}<small>日</small>`;

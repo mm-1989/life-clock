@@ -168,12 +168,12 @@ describe('formatBreakdownLabel', () => {
     expect(formatBreakdownLabel({ years: 0, months: 11, days: 0 })).toBe('11か月');
   });
 
-  it('1 歳以降は 0 のものを省略(中途 0 月は「と」で繋ぐ)', () => {
-    expect(formatBreakdownLabel({ years: 1, months: 0, days: 12 })).toBe('1歳と12日'); // 中途 0 月省略
-    expect(formatBreakdownLabel({ years: 3, months: 0, days: 1 })).toBe('3歳と1日');   // 中途 0 月省略
-    expect(formatBreakdownLabel({ years: 1, months: 3, days: 0 })).toBe('1歳3か月');    // 末尾 0 日省略
-    expect(formatBreakdownLabel({ years: 1, months: 0, days: 0 })).toBe('1歳');           // 月日とも 0 → 歳のみ
-    expect(formatBreakdownLabel({ years: 5, months: 11, days: 30 })).toBe('5歳11か月と30日'); // フル
+  it('1 歳以降は 0 のものを省略、残った単位は「と」で繋ぐ', () => {
+    expect(formatBreakdownLabel({ years: 1, months: 0, days: 12 })).toBe('1歳と12日');   // 0 月省略
+    expect(formatBreakdownLabel({ years: 3, months: 0, days: 1 })).toBe('3歳と1日');     // 0 月省略
+    expect(formatBreakdownLabel({ years: 1, months: 3, days: 0 })).toBe('1歳と3か月');   // 0 日省略
+    expect(formatBreakdownLabel({ years: 1, months: 0, days: 0 })).toBe('1歳');            // 月日とも 0
+    expect(formatBreakdownLabel({ years: 5, months: 11, days: 30 })).toBe('5歳と11か月と30日'); // フル
   });
 });
 
