@@ -4,25 +4,34 @@
  */
 :root {
   /* Surfaces */
-  --bg: #fbf3ee;
+  --bg: #FBF4EF;
   --bg-elevated: #fef9f5;
-  --card-bg: #ffffff;
+  --card-bg: #FFFDFC;
   --card-border: rgba(150, 100, 90, 0.10);
   --line: #f0e3dc;
   --copy-flash: #fde5dc;
 
   /* Text */
   --fg: #2c2520;
-  --fg-strong: #1a1410;
-  --fg-sub: #8a7870;
+  --fg-strong: #1F1715;
+  --fg-sub: #8C7A73;
   --fg-mute: #b6a59c;
 
   /* Brand: coral/salmon */
-  --accent: #ec8478;
+  --accent: #E98277;
   --accent-soft: #fde5dc;
-  --accent-strong: #c45f4e;
+  --accent-strong: #C85E50;
   --danger: #c4604f;
   --danger-soft: rgba(196, 96, 79, 0.12);
+
+  /* Sage: 補助情報/成功/ペット用の差し色(coral と競合させない) */
+  --sage: #A9B8A1;
+  --sage-soft: #eef3ea;
+  --sage-strong: #5b7a64;
+
+  /* Hero card tint(coral をごく淡く重ねる) */
+  --hero-tint: #fff7f3;
+  --hero-border: #f2c6be;
 
   /* Elevation (warm tinted shadows) */
   --shadow-sm: 0 1px 2px rgba(80, 50, 40, 0.04);
@@ -89,6 +98,13 @@
     --accent-strong: #ffbeb4;
     --danger: #e88478;
     --danger-soft: rgba(232, 132, 120, 0.18);
+
+    --sage: #9ec4ad;
+    --sage-soft: rgba(169, 184, 161, 0.16);
+    --sage-strong: #9ec4ad;
+
+    --hero-tint: #2b211c;
+    --hero-border: rgba(245, 163, 151, 0.40);
 
     --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.30);
     --shadow-md: 0 1px 2px rgba(0, 0, 0, 0.30), 0 4px 14px rgba(0, 0, 0, 0.20);
@@ -268,20 +284,25 @@ button { font: inherit; }
 .child-tag.tag-family   { color: #c45f4e; background: #fde5dc; }
 .child-tag.tag-relative { color: #b85f3e; background: #fce0d0; }
 .child-tag.tag-friend   { color: #4f8a76; background: #d8ede4; }
-.child-tag.tag-pet      { color: #8a6a3a; background: #f1e4cc; }
+.child-tag.tag-pet      { color: var(--sage-strong); background: var(--sage-soft); }
 .child-tag.tag-other    { color: #6e6259; background: #e8e2da; }
 
 @media (prefers-color-scheme: dark) {
   .child-tag.tag-family   { color: #f5b3a6; background: rgba(245, 163, 151, 0.18); }
   .child-tag.tag-relative { color: #f0b08a; background: rgba(240, 176, 138, 0.18); }
   .child-tag.tag-friend   { color: #9ed4b9; background: rgba(132, 184, 164, 0.18); }
-  .child-tag.tag-pet      { color: #d8b58a; background: rgba(201, 168, 124, 0.18); }
+  .child-tag.tag-pet      { color: #9ec4ad; background: rgba(169, 184, 161, 0.18); }
   .child-tag.tag-other    { color: #b6a89e; background: rgba(155, 142, 132, 0.18); }
 }
 
 .child-tag-icon {
-  font-size: 11px;
-  line-height: 1;
+  display: inline-flex;
+  align-items: center;
+}
+.child-tag-icon svg {
+  width: 13px;
+  height: 13px;
+  display: block;
 }
 
 .icon-button {
@@ -410,8 +431,9 @@ button { font: inherit; }
 .card-main {
   padding: var(--space-6) var(--space-6) var(--space-6);
   background:
-    linear-gradient(155deg, var(--bg-elevated) 0%, var(--card-bg) 60%);
-  border: 1px solid var(--card-border);
+    linear-gradient(135deg, var(--card-bg) 0%, var(--hero-tint) 100%);
+  border: 1.5px solid var(--hero-border);
+  border-radius: var(--radius-xl);
 }
 
 .card-main::before {
@@ -520,9 +542,9 @@ button { font: inherit; }
 }
 
 .kv .value {
-  font-family: var(--font-number);
+  font-family: var(--font-sans);
   font-size: clamp(20px, 5.6vw, 26px);
-  font-weight: 400;
+  font-weight: 700;
   letter-spacing: -0.005em;
   text-align: right;
   margin-left: auto;

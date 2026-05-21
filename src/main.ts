@@ -18,6 +18,7 @@ import {
 } from './age.ts';
 import { type CardKind, getActiveChild, getCardOrder, getStore, isCardVisible, setActiveChild, TAG_PRESETS, type Child } from './store.ts';
 import { renderOnboarding } from './onboarding.ts';
+import { TAG_ICONS } from './illustrations.ts';
 import { openSettings } from './settings.ts';
 import { attachHorizontalSwipe, attachLongPress } from './gestures.ts';
 import { applySeasonTheme } from './seasons.ts';
@@ -547,7 +548,8 @@ function renderEventCards(child: Child, now: Date): string {
 function tagBadgeHtml(c: Child): string {
   if (!c.tag) return '';
   const preset = TAG_PRESETS[c.tag];
-  return `<span class="child-tag tag-${escapeAttr(c.tag)}"><span class="child-tag-icon">${preset.icon}</span>${escapeHtml(preset.label)}</span>`;
+  const icon = TAG_ICONS[c.tag] ?? '';
+  return `<span class="child-tag tag-${escapeAttr(c.tag)}"><span class="child-tag-icon">${icon}</span>${escapeHtml(preset.label)}</span>`;
 }
 
 function escapeHtml(s: string): string {

@@ -53,8 +53,10 @@ export function renderTagSelect(id: string, current: ChildTag | undefined): stri
   const options = ['<option value="">なし</option>']
     .concat(
       TAG_ORDER.map(
+        // <option> には画像/SVG を入れられないため、select はラベルのみ表示。
+        // アイコンはヘッダー/タブの色付き pill バッジ側で SVG 表示する。
         (t) =>
-          `<option value="${t}"${t === current ? ' selected' : ''}>${TAG_PRESETS[t].icon} ${TAG_PRESETS[t].label}</option>`,
+          `<option value="${t}"${t === current ? ' selected' : ''}>${TAG_PRESETS[t].label}</option>`,
       ),
     )
     .join('');
