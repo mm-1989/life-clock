@@ -4,3 +4,7 @@ dist
 *.local
 .vite
 screenshots
+
+# 生成画像の原本マスター(author 側ローカル保管)。配布版は public/ に縮小/WebP 済み。
+# OG 再生成(scripts/make-og.mjs)もこの中の og-art.png を使う。リポジトリは軽量に保つ。
+assets-src

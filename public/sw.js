@@ -5,7 +5,7 @@
 // VERSION を build ごとに上げると旧キャッシュを破棄して全クライアントを更新する。
 // time-stack の sw.js を参考に、scope/precache を /life-clock/ に変更。
 
-const VERSION = 'life-clock-v1';
+const VERSION = 'life-clock-v2';
 const SCOPE = '/life-clock/';
 
 // 起動に必要な shell をインストール時に precache。

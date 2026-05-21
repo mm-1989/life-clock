@@ -125,40 +125,54 @@ body {
     env(safe-area-inset-left);
   /* スワイプ取りこぼし対策: 縦スクロールは許可、水平方向は JS が受け取る */
   touch-action: pan-y;
-  background:
-    radial-gradient(circle at 18% -8%, rgba(236, 132, 120, 0.08), transparent 38%),
-    radial-gradient(circle at 88% 110%, rgba(236, 132, 120, 0.06), transparent 42%),
-    var(--bg);
+  background-color: var(--bg);
+  background-image: url("/life-clock/bg-pattern-light.webp");
+  background-size: cover;
+  background-position: center top;
+  background-repeat: no-repeat;
   background-attachment: fixed;
 }
 
+@media (prefers-color-scheme: dark) {
+  body { background-image: url("/life-clock/bg-pattern-dark.webp"); }
+}
+
+/* 季節グロー: 背景パターンの上に、季節ごとの淡い放射グラデを ::before で重ねる。
+ * パターンは光らせず、季節感は色味だけで表現。半透明なのでパターンが透ける。
+ * z-index:-1 で #app コンテンツの背面、body 背景(パターン)の前面に入る。 */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    radial-gradient(circle at 18% -8%, rgba(233, 130, 119, 0.10), transparent 38%),
+    radial-gradient(circle at 88% 110%, rgba(233, 130, 119, 0.07), transparent 42%);
+}
+
 /* ===== Season themes (data-season は seasons.ts で <html> に付与) =====
- * 既存の coral 系メイン背景に、季節ごとのドットパターンを追加で重ねる。
- * パターン自体は subtle(opacity ~0.10)、視認性を妨げない。
+ * 背景パターンは共通(bg-pattern)。季節感は ::before の放射グラデの色味だけで出す。
  */
-html[data-season="spring"] body {
-  background-image:
-    radial-gradient(circle at 18% -8%, rgba(236, 132, 120, 0.08), transparent 38%),
-    radial-gradient(circle at 88% 110%, rgba(236, 132, 120, 0.06), transparent 42%),
-    url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='80' height='80'><g fill='%23f5b3a6' opacity='0.18'><circle cx='20' cy='20' r='2.5'/><circle cx='60' cy='40' r='2'/><circle cx='30' cy='60' r='2.5'/></g></svg>");
+html[data-season="spring"] body::before {
+  background:
+    radial-gradient(circle at 18% -8%, rgba(233, 130, 119, 0.12), transparent 40%),
+    radial-gradient(circle at 88% 110%, rgba(233, 130, 119, 0.08), transparent 42%);
 }
-html[data-season="summer"] body {
-  background-image:
-    radial-gradient(circle at 18% -8%, rgba(132, 184, 236, 0.10), transparent 38%),
-    radial-gradient(circle at 88% 110%, rgba(132, 184, 236, 0.07), transparent 42%),
-    url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='80' height='80'><g fill='none' stroke='%2384b8ec' stroke-width='1.2' opacity='0.20'><path d='M5 30 Q15 25 25 30 T45 30'/><path d='M40 60 Q50 55 60 60 T80 60'/></g></svg>");
+html[data-season="summer"] body::before {
+  background:
+    radial-gradient(circle at 18% -8%, rgba(132, 184, 236, 0.12), transparent 40%),
+    radial-gradient(circle at 88% 110%, rgba(132, 184, 236, 0.08), transparent 42%);
 }
-html[data-season="autumn"] body {
-  background-image:
-    radial-gradient(circle at 18% -8%, rgba(217, 122, 58, 0.10), transparent 38%),
-    radial-gradient(circle at 88% 110%, rgba(180, 80, 40, 0.07), transparent 42%),
-    url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='80' height='80'><g fill='%23d97a3a' opacity='0.16'><circle cx='20' cy='20' r='2.5'/><circle cx='60' cy='35' r='2'/><circle cx='30' cy='60' r='2.5'/><circle cx='65' cy='65' r='2'/></g></svg>");
+html[data-season="autumn"] body::before {
+  background:
+    radial-gradient(circle at 18% -8%, rgba(217, 122, 58, 0.12), transparent 40%),
+    radial-gradient(circle at 88% 110%, rgba(180, 80, 40, 0.08), transparent 42%);
 }
-html[data-season="winter"] body {
-  background-image:
-    radial-gradient(circle at 18% -8%, rgba(180, 200, 230, 0.12), transparent 38%),
-    radial-gradient(circle at 88% 110%, rgba(180, 200, 230, 0.08), transparent 42%),
-    url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='80' height='80'><g fill='%23b4c8e6' opacity='0.22'><circle cx='20' cy='20' r='1.8'/><circle cx='60' cy='40' r='1.5'/><circle cx='35' cy='65' r='1.8'/><circle cx='65' cy='15' r='1.2'/></g></svg>");
+html[data-season="winter"] body::before {
+  background:
+    radial-gradient(circle at 18% -8%, rgba(150, 180, 220, 0.14), transparent 40%),
+    radial-gradient(circle at 88% 110%, rgba(150, 180, 220, 0.10), transparent 42%);
 }
 
 button { font: inherit; }
@@ -424,6 +438,22 @@ button { font: inherit; }
     radial-gradient(circle at 12% 100%, rgba(236, 132, 120, 0.10), transparent 38%);
 }
 
+/* 誕生日当日: 生成イラスト(ガーランド/ケーキ)をヒーロー背面に重ねる。
+ * 中央は素材側で空けてあるので数字に被らない。z-index:0 で本文(z:1)の背面。
+ * ダークはカードが暗く、明色の素材だと本文(明色テキスト)が読めなくなるため非表示。 */
+.card-main.is-birthday::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: url("/life-clock/birthday-accent.webp") center / cover no-repeat;
+  opacity: 0.7;
+  pointer-events: none;
+  z-index: 0;
+}
+@media (prefers-color-scheme: dark) {
+  .card-main.is-birthday::after { display: none; }
+}
+
 .birthday-badge {
   display: inline-flex;
   align-items: center;
@@ -444,7 +474,7 @@ button { font: inherit; }
   to   { transform: translateY(0) scale(1);       opacity: 1; }
 }
 
-.card-main > * { position: relative; }
+.card-main > * { position: relative; z-index: 1; }
 
 .label-line {
   font-size: 13px;
@@ -586,11 +616,13 @@ button { font: inherit; }
   color: var(--accent);
   margin-bottom: var(--space-2);
 }
-.onboarding-hero svg {
-  width: 200px;
-  max-width: 100%;
+.onboarding-hero img {
+  width: 240px;
+  max-width: 78%;
   height: auto;
-  filter: drop-shadow(0 4px 12px rgba(236, 132, 120, 0.18));
+  display: block;
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
   animation: hero-in 600ms var(--ease-out);
 }
 @keyframes hero-in {
@@ -781,13 +813,17 @@ button { font: inherit; }
 }
 
 .about-illustration {
-  width: 96px;
-  height: 96px;
-  color: var(--accent);
+  width: 72px;
+  height: 72px;
   flex-shrink: 0;
-  filter: drop-shadow(0 6px 16px rgba(236, 132, 120, 0.22));
 }
-.about-illustration svg { width: 100%; height: 100%; }
+.about-illustration img {
+  width: 100%;
+  height: 100%;
+  display: block;
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+}
 
 .about-title-block {
   display: flex;
@@ -1058,12 +1094,15 @@ dialog.dialog::backdrop {
   gap: var(--space-2);
 }
 .event-empty-illust {
-  width: 56px;
-  height: 56px;
-  color: var(--accent);
-  opacity: 0.7;
+  width: 88px;
+  height: 88px;
 }
-.event-empty-illust svg { width: 100%; height: 100%; }
+.event-empty-illust img {
+  width: 100%;
+  height: 100%;
+  display: block;
+  border-radius: var(--radius-md);
+}
 .event-empty-text { margin: 0; line-height: 1.6; }
 
 .event-row {

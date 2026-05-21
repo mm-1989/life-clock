@@ -101,7 +101,11 @@ async function run() {
   await rm(OUT_DIR, { recursive: true, force: true });
   await mkdir(OUT_DIR, { recursive: true });
 
-  const browser = await chromium.launch();
+  // ローカルでは PW_CHROME でブラウザ実体を指定可(npm 版が要求する build と
+  // DL 済み build がズレても動かすため)。CI では未設定 → 通常解決。
+  const browser = await chromium.launch(
+    process.env.PW_CHROME ? { executablePath: process.env.PW_CHROME } : {},
+  );
   const startedAt = Date.now();
   let ok = 0;
   let failed = 0;
